@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+<h1>{{ search_word.capitalize }}</h1>
+
+{% if category_posts %}
+  <ul>
+    {% for post in category_posts %}
+      <li><a href="{% url 'article-detail' post.pk %}">{{ post.title }}<a/> 
+        - {{ post.author.first_name }} {{ post.author.last_name }} 
+        - {{ post.date_created }}
+        {% if user.is_authenticated %}
+        - <small>
+          <a href="{% url 'update_post' post.pk %}">Edit</a>
+          <a href="{% url 'delete_post' post.pk %}">Delete</a>
+        </small>
+        {% endif %}
+        <br />
+      {{ post.body|slice:":200"|safe }}...</li>
+    {% endfor %}
+  </ul>
+{% else %}
+
+There are no related posts to "{{ search_word }}"".
+
+{% endif %}
+
+{% endblock %}
