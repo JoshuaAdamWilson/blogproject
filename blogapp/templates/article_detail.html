@@ -1,5 +1,6 @@
 
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}
   {{ post.title_tag }}
@@ -11,16 +12,129 @@
 <small>By {{ post.author.first_name }} {{ post.author.last_name }} 
   - {{ post.date_created }}
   {% if user.is_authenticated %}
-    - <a href="{% url 'update_post' post.pk %}">Edit</a> 
-    <a href="{% url 'delete_post' post.pk %}">Delete</a>
+    {% if user.id == post.author.id %}
+      - <a href="{% url 'update_post' post.pk %}">Edit</a> 
+      <a href="{% url 'delete_post' post.pk %}">Delete</a>
+    {% endif %}
   {% endif %}
 </small>
 <br />
 <hr>
 <br />
+
+
+
+{% if post.header_image %}
+  <img src="{{ post.header_image.url }}" style="width: 30%;"/>
+  <br />
+  <br />
+{% endif %}
+
+
+
 {{ post.body|safe }}
 
-<br /><br />
-<a href="{% url 'home' %}" class="btn btn-secondary">Back</a>
+<hr>
+<form action="{% url 'like_post' post.pk %}" method="POST">
+  {% csrf_token %}
+  {% if user.is_authenticated %}
+    {% if liked %}
+      <button type="submit", name="post_id", 
+      value="{{ post.id }}", 
+      class="btn btn-danger btn-sm">Unlike</button>
+    {% else %}
+      <button type="submit", name="post_id", 
+      value="{{ post.id }}", 
+      class="btn btn-primary btn-sm">Like</button> 
+    {% endif %}
+  {% else %}
+    <small><a href="{% url 'login' %}">Login</a> to Like</small>
+  {% endif %} - {{ total_likes }} Likes
+</form>
+
+<br />
+<br />
+<div class="card mb-3">
+  <div class="row g-0">
+    <div class="col-md-2">
+      {% if not post.author.profile %}
+          <img src="/media/images/avatar.png" class="card-img" alt="...">
+      {% elif post.author.profile.profile_pic %}
+        <a href="{% url 'show_profile_page' post.author.profile.id %}">
+          <img src="{{ post.author.profile.profile_pic.url }}" class="card-img" alt="...">
+        </a>
+      {% else %}
+        <a href="{% url 'show_profile_page' post.author.profile.id %}">
+          <img src="/media/images/avatar.png" class="card-img" alt="...">
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="col-md-10">
+      <div class="card-body">
+        <h5 class="card-title">
+          {% if post.author.profile %}
+            <a href="{% url 'show_profile_page' post.author.profile.id %}" style="text-decoration: none; color: black;">
+              {{ post.author.first_name }} {{ post.author.last_name }} 
+            </a>
+          {% else %}
+            {{ post.author.first_name }} {{ post.author.last_name }} 
+          {% endif %}
+        </h5>
+        <p class="small text-muted">
+          {% if post.author.profile.website_url %}
+            <a href="{{ post.author.profile.website_url }}">Website</a>
+          {% endif %}
+          {% if post.author.profile.facebook_url %}
+            | <a href="{{ post.author.profile.facebook_url }}">Facebook</a>
+          {% endif %}
+          {% if post.author.profile.twitter_url %}
+            | <a href="{{ post.author.profile.twitter_url }}">Twitter</a>
+          {% endif %}
+          {% if post.author.profile.instagram_url %}
+            | <a href="{{ post.author.profile.instagram_url }}">Instagram</a>
+          {% endif %}
+          {% if post.author.profile.pinterest_url %}
+            | <a href="{{ post.author.profile.pinterest_url }}">Pinterest</a>
+          {% endif %}
+        </p>
+        <p class="card-text">{{ post.author.profile.bio }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<br />
+<br />
+
+
+<h2>Comments</h2><br />
+{% if not post.comments.all %}
+No Comments Yet
+<br />
+<a href="{% url 'add_comment' post.pk %}">Add Comment</a>
+<br />
+<br />
+{% else %}
+  {% if user.is_authenticated %}
+    <a href="{% url 'add_comment' post.pk %}">Add Comment</a><br /><br />
+  {% endif %}
+  {% for comment in post.comments.all %}
+    <strong>
+    {{ comment.name }} - 
+    {{ comment.date_added }}
+    </strong>
+    <br />
+    {{ comment.body }}
+    <br />
+    <br />
+  {% endfor %}
+  <br />
+  {% if user.is_authenticated %}
+    <a href="{% url 'add_comment' post.pk %}">Add Comment</a><br /><br />
+  {% endif %}
+{% endif %}
+<hr>
+
 
 {% endblock %}

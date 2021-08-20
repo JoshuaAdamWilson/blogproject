@@ -8,18 +8,21 @@
   <h1>Add Post</h1>
   <br />
   <div class="form-group">
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
-
+      {{ form.media }}
       {{ form.as_p }}
-      <small><p style='color: gray'>(Supports HTML, CSS formatting)</p></small>
       <button class='btn btn-secondary'>Post</button>
 
     </form>
   </div>
+  <script>
+    var name = "{{ user.id }}";
+    document.getElementById("user").value = name;
+  </script>
 {% else %}
 
-You are not allowed here! (and you know it)
+<h3>You are not allowed here! (and you know it)<h3>
 
 {% endif %}
 

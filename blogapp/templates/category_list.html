@@ -1,0 +1,16 @@
+
+{% extends 'base.html' %}
+
+{% block title %}
+  Blog Categories
+{% endblock %}
+
+{% block content %}
+
+<h1>Blog Categories</h1>
+<p style='font-size: 20px'><strong>
+  {% for category in category_list %}
+    #<a href="{% url 'category' category|slugify %}">{{ category }}</a>
+  {% endfor %}
+</strong></p>
+{% endblock %}
